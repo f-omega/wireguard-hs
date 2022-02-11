@@ -1,0 +1,71 @@
+name: wireguard-hs
+version: 0.1.0
+synopsis: API for Linux Kernel Wireguard device management
+
+category: Networking
+license: LGPL
+
+dependencies:
+  - base
+  - clock
+  - cryptonite
+  - ip
+  - memory
+  - network
+  - text
+  - time
+  - vector
+  - vector-sized
+  - wide-word
+
+default-extensions:
+  - BangPatterns
+  - ForeignFunctionInterface
+  - CPP
+  - DerivingStrategies
+  - GeneralizedNewtypeDeriving
+  - DerivingVia
+  - DeriveAnyClass
+  - ScopedTypeVariables
+  - KindSignatures
+  - DataKinds
+  - TypeApplications
+  - DeriveGeneric
+  - OverloadedStrings
+
+library:
+  c-sources:
+    - wireguard/wireguard.c
+    - System/Network/linkstatus.c
+  include-dirs: wireguard/
+  exposed-modules:
+    - System.Network.Wireguard
+
+flags:
+  aeson:
+    description: Enable ToJSON/FromJSON instances with Aeson
+    manual: true
+    default: false
+
+  beam:
+    description: Enable Beam serializers/deserializers
+    manual: true
+    default: false
+
+when:
+  - condition: flag(aeson)
+    dependencies:
+      - aeson
+      - base64
+    cpp-options: -DWITH_AESON=1
+
+  - condition: flag(beam)
+    dependencies:
+      - beam-core
+      - bytestring
+    cpp-options: -DWITH_BEAM=1
+    default-extensions:
+      - FlexibleInstances
+      - FlexibleContexts
+      - MultiParamTypeClasses
+      - UndecidableInstances

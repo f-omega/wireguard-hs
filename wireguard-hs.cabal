@@ -1,0 +1,75 @@
+cabal-version: 1.12
+
+-- This file has been generated from package.yaml by hpack version 0.34.5.
+--
+-- see: https://github.com/sol/hpack
+
+name:           wireguard-hs
+version:        0.1.0
+synopsis:       API for Linux Kernel Wireguard device management
+category:       Networking
+license:        LGPL
+build-type:     Simple
+
+flag aeson
+  description: Enable ToJSON/FromJSON instances with Aeson
+  manual: True
+  default: False
+
+flag beam
+  description: Enable Beam serializers/deserializers
+  manual: True
+  default: False
+
+library
+  exposed-modules:
+      System.Network.Wireguard
+  other-modules:
+      Paths_wireguard_hs
+  default-extensions:
+      BangPatterns
+      ForeignFunctionInterface
+      CPP
+      DerivingStrategies
+      GeneralizedNewtypeDeriving
+      DerivingVia
+      DeriveAnyClass
+      ScopedTypeVariables
+      KindSignatures
+      DataKinds
+      TypeApplications
+      DeriveGeneric
+      OverloadedStrings
+  include-dirs:
+      wireguard/
+  c-sources:
+      wireguard/wireguard.c
+      System/Network/linkstatus.c
+  build-depends:
+      base
+    , clock
+    , cryptonite
+    , ip
+    , memory
+    , network
+    , text
+    , time
+    , vector
+    , vector-sized
+    , wide-word
+  if flag(aeson)
+    cpp-options: -DWITH_AESON=1
+    build-depends:
+        aeson
+      , base64
+  if flag(beam)
+    default-extensions:
+        FlexibleInstances
+        FlexibleContexts
+        MultiParamTypeClasses
+        UndecidableInstances
+    cpp-options: -DWITH_BEAM=1
+    build-depends:
+        beam-core
+      , bytestring
+  default-language: Haskell2010
