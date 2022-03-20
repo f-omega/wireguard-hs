@@ -16,11 +16,15 @@ import qualified Data.ByteString.Base64 as B64
 import           Data.Bits
 import           Data.Coerce (coerce)
 import qualified Data.ByteArray as BA
+#ifdef WITH_HASHABLE
+import           Data.Hashable (Hashable)
+#endif
 import           Data.Maybe (fromMaybe)
 import           Data.String (fromString)
 import qualified Data.Text as T
 import           Data.Time (UTCTime)
 import           Data.Proxy (Proxy(..))
+import qualified Data.Vector as V.Normal
 import qualified Data.Vector.Storable as V
 import qualified Data.Vector.Storable.Sized as VS
 import           Data.WideWord.Word128 (Word128(..))
@@ -61,6 +65,11 @@ data IPRange
     = IPRange4 !IPv4Range
     | IPRange6 !IPv6Range
       deriving (Show, Eq, Ord)
+
+singleAddrRange :: IP.IP -> IPRange
+singleAddrRange =
+ IP.case_ (\v4 -> IPRange4 $ IPv4Range v4 32)
+          (\v6 -> IPRange6 $ IPv6Range v6 128)
 
 #ifdef WITH_AESON
 instance ToJSON IPRange where
@@ -120,6 +129,19 @@ instance KnownKeyType 'PrivateKey where
 newtype WgKey (ty :: KeyType) = WgKey (VS.Vector 32 Word8)
   deriving newtype (Storable, Eq, Ord)
 
+newtype UnredactedWgKey = UnredactedWgKey (WgKey 'PublicKey)
+  deriving newtype (ToJSON, FromJSON, Show, Eq, Ord)
+
+mkSaveableWgKey :: WgKey t -> UnredactedWgKey
+mkSaveableWgKey = UnredactedWgKey . unsafeMkPublic
+
+fromSavedWgKey :: UnredactedWgKey -> WgKey t
+fromSavedWgKey (UnredactedWgKey (WgKey x)) = WgKey x
+
+#ifdef WITH_HASHABLE
+deriving newtype instance Hashable (WgKey 'PublicKey) -- Restrict hashable instance to only public key
+#endif
+
 #ifdef WITH_BEAM
 instance HasSqlEqualityCheck be BS.ByteString => HasSqlEqualityCheck be (WgKey ty)
 #endif
@@ -130,6 +152,15 @@ wgEmptyKey = WgKey (VS.replicate 0)
 -- | Convert any 'WgKey' into a public one. This is unsafe, and only used for testing
 unsafeMkPublic :: WgKey a -> WgKey 'PublicKey
 unsafeMkPublic (WgKey x) = WgKey x
+
+wgKeyToVector :: WgKey a -> V.Normal.Vector Word8
+wgKeyToVector (WgKey x) = V.Normal.fromList (VS.toList x)
+
+wgKeyFromVector :: V.Normal.Vector Word8 -> WgKey a
+wgKeyFromVector bytes = WgKey . VS.generate $ \(fromEnum -> i) ->
+                        case bytes V.Normal.!? i of
+                        Nothing -> 0
+                        Just x -> x
 
 instance KnownKeyType ty => Show (WgKey ty) where
   show (WgKey x) = case keyTypeVal (Proxy @ty) of

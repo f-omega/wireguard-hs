@@ -34,6 +34,8 @@ default-extensions:
   - TypeApplications
   - DeriveGeneric
   - OverloadedStrings
+  - StandaloneDeriving
+  - ViewPatterns
 
 library:
   c-sources:
@@ -50,7 +52,12 @@ flags:
     default: false
 
   beam:
-    description: Enable Beam serializers/deserializers
+    description: Enable Beamxo serializers/deserializers
+    manual: true
+    default: false
+
+  hashable:
+    description: Enable Hashable instances
     manual: true
     default: false
 
@@ -60,6 +67,11 @@ when:
       aeson: ">=2.0 && <2.1"
       base64: ">=0.4 && <0.5"
     cpp-options: -DWITH_AESON=1
+
+  - condition: flag(hashable)
+    dependencies:
+      hashable: ">=1.4 && <1.5"
+    cpp-options: -DWITH_HASHABLE=1
 
   - condition: flag(beam)
     dependencies:
