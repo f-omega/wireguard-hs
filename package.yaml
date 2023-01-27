@@ -76,7 +76,7 @@ when:
   - condition: flag(beam)
     dependencies:
       beam-core: ">=0.9 && <0.11"
-      bytestring: ">=0.10 && <0.11"
+      bytestring: ">=0.10 && <0.12"
     cpp-options: -DWITH_BEAM=1
     default-extensions:
       - FlexibleInstances
