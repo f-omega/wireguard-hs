@@ -69,7 +69,7 @@ library
   if flag(aeson)
     cpp-options: -DWITH_AESON=1
     build-depends:
-        aeson ==2.0.*
+        aeson >=2.0 && <2.2
       , base64 ==0.4.*
   if flag(hashable)
     cpp-options: -DWITH_HASHABLE=1
