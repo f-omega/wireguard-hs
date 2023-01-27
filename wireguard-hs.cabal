@@ -51,6 +51,10 @@ library
       ViewPatterns
   include-dirs:
       wireguard/
+  includes:
+      wireguard.h
+  install-includes:
+      wireguard.h
   c-sources:
       wireguard/wireguard.c
       System/Network/linkstatus.c
