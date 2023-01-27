@@ -130,7 +130,10 @@ newtype WgKey (ty :: KeyType) = WgKey (VS.Vector 32 Word8)
   deriving newtype (Storable, Eq, Ord)
 
 newtype UnredactedWgKey = UnredactedWgKey (WgKey 'PublicKey)
-  deriving newtype (ToJSON, FromJSON, Show, Eq, Ord)
+#ifdef WITH_AESON
+  deriving newtype (ToJSON, FromJSON)
+#endif
+  deriving newtype (Show, Eq, Ord)
 
 mkSaveableWgKey :: WgKey t -> UnredactedWgKey
 mkSaveableWgKey = UnredactedWgKey . unsafeMkPublic

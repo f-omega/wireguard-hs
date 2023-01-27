@@ -355,6 +355,7 @@
       "original": {
         "owner": "input-output-hk",
         "repo": "haskell.nix",
+        "rev": "418612f2f2b814ae6161682fb3770c3c86c41b44",
         "type": "github"
       }
     },
