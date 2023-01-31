@@ -225,6 +225,9 @@ wgDeviceHasPublicKey = WgDeviceFlags (#const WGDEVICE_HAS_PUBLIC_KEY)
 wgDeviceHasListenPort = WgDeviceFlags (#const WGDEVICE_HAS_LISTEN_PORT)
 wgDeviceHasFwMark = WgDeviceFlags (#const WGDEVICE_HAS_FWMARK)
 
+hasDeviceFlag :: WgDeviceFlags -> WgDeviceFlags -> Bool
+hasDeviceFlag (WgDeviceFlags needle) (WgDeviceFlags haystack) = (needle .&. haystack) /= 0
+
 data WgDevice
   = WgDevice
   { wgDeviceName    :: T.Text
