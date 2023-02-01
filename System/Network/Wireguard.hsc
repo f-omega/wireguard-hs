@@ -25,8 +25,9 @@ import qualified Data.Text as T
 import           Data.Time (UTCTime)
 import           Data.Proxy (Proxy(..))
 import qualified Data.Vector as V.Normal
-import qualified Data.Vector.Storable as V
-import qualified Data.Vector.Storable.Sized as VS
+import qualified Data.Vector.Unboxed as V
+import qualified Data.Vector.Unboxed.Sized as VS
+import qualified Data.Vector.Storable as V.Storable
 import           Data.WideWord.Word128 (Word128(..))
 import           Data.Word
 
@@ -173,7 +174,8 @@ instance KnownKeyType ty => Show (WgKey ty) where
 instance BA.ByteArrayAccess (WgKey ty) where
   length (WgKey v) = VS.length v -- Always 32, but updates if it changes?
   withByteArray (WgKey v) withPtr =
-   let (fPtr, _) = V.unsafeToForeignPtr0 (VS.fromSized v)
+   let vs = V.Storable.fromList . V.toList . VS.fromSized $ v
+       (fPtr, _) = V.Storable.unsafeToForeignPtr0 vs
    in withForeignPtr fPtr (withPtr . castPtr)
 
 #ifdef WITH_AESON
